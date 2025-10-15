@@ -1,4 +1,8 @@
-using UnityEngine;public class CameraController : MonoBehaviour{
+using UnityEngine;
+
+public class CameraController : MonoBehaviour
+
+{
     //回転設定
     public float mouseSensitivity = 3.0f; // マウス感度
     public float minVerticalAngle = -15.0f; // 下向き制限
@@ -10,24 +14,44 @@ using UnityEngine;public class CameraController : MonoBehaviour{
     float verticalRotation = 0f; // カメラの上下角
     float currentYaw = 0f;       // プレイヤーの左右回転（自由）
 
-    void Start()    {        if (player == null)        {            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");            if (playerObj != null)                player = playerObj.transform;            else            {                enabled = false;                return;            }        }
+    void Start()
+    {
+        if (player == null)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+                player = playerObj.transform;
+            else
+            {
+                enabled = false;
+                return;
+            }
+        }
 
         // カーソルロック
-        Cursor.lockState = CursorLockMode.Locked;        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
 
         // 初期角度設定
-        Vector3 angles = transform.eulerAngles;        currentYaw = angles.y;        verticalRotation = angles.x;    }
+        Vector3 angles = transform.eulerAngles;
+        currentYaw = angles.y;
+        verticalRotation = angles.x;
+    }
 
-    void LateUpdate()    {        if (GameManager.gameState != GameState.playing) return;
+    void LateUpdate()
+    {
+        if (GameManager.gameState != GameState.playing) return;
 
         // マウス入力
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
         // 横回転（制限なし）
         currentYaw += mouseX;
 
         // 縦回転（制限あり）
-        verticalRotation -= mouseY;        verticalRotation = Mathf.Clamp(verticalRotation, minVerticalAngle, maxVerticalAngle);
+        verticalRotation -= mouseY;
+        verticalRotation = Mathf.Clamp(verticalRotation, minVerticalAngle, maxVerticalAngle);
 
         // カメラ回転を適用
         Quaternion rotation = Quaternion.Euler(verticalRotation, currentYaw, 0f);
@@ -42,4 +66,6 @@ using UnityEngine;public class CameraController : MonoBehaviour{
         transform.LookAt(player.position + Vector3.up * 2f);
 
         // プレイヤーの向きをカメラのY回転に合わせる（上下は無視）
-        player.rotation = Quaternion.Euler(0f, currentYaw, 0f);    }}
+        player.rotation = Quaternion.Euler(0f, currentYaw, 0f);
+    }
+}
