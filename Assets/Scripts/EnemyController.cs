@@ -194,7 +194,6 @@ public class EnemyController : MonoBehaviour
 
             // ② ダメージを一度だけ与える
             enemyHP -= damage;
-            Debug.Log("ダメージ！ 残りHP: " + enemyHP);
 
             // ③ HPの状態に関わらず、必ず点滅コルーチンを呼び出す
             StartCoroutine(DamageFlash());
@@ -207,7 +206,6 @@ public class EnemyController : MonoBehaviour
     // ダメージ時の点滅エフェクト
     IEnumerator DamageFlash()
     {
-        Debug.Log("DamageFlash: 点滅処理を開始します。");
 
         // 念のため、複数のRendererに対応できるようにしておく
         Renderer[] renderers = Body.GetComponentsInChildren<Renderer>(true);
