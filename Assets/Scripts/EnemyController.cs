@@ -1,7 +1,6 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Audio;
 
 public class EnemyController : MonoBehaviour
 {
@@ -22,7 +21,7 @@ public class EnemyController : MonoBehaviour
     //  内部で使用する変数 
     private bool isDamage;//ダメージ処理
     private GameObject player;//プレイヤー情報
-    private NavMeshAgent navMeshAgent;//プレイヤーに近づくメソッド
+    private NavMeshAgent navMeshAgent;//プレイヤーに近づく変数
     private bool isAttack;//攻撃フラグ
     private bool lockOn = true; // プレイヤーの方向を向くかどうか
     private float timer;
@@ -242,7 +241,7 @@ public class EnemyController : MonoBehaviour
             }
 
             // アニメーションが終わるまで待つ（時間はアニメの長さに合わせて調整）
-            yield return new WaitForSeconds(2.0f);
+            yield return new WaitForSeconds(1.5f);
 
             // GameManagerのリストから自身を削除
             if (gameMgr != null)
