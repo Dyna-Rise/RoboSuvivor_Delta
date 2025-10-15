@@ -1,45 +1,70 @@
+using System.Collections;
 using UnityEngine;
-using UnityEngine.Audio;
 
 public class SwordAttack : MonoBehaviour
 {
-    public GameObject swordCollider;
-    public GameObject swordPrefab;
-    public float deleteTime = 0.5f;
+    public GameObject swordCollider; // 当たり判定
+    public GameObject swordPrefab;   // 斬撃エフェクト
+    public float deleteTime = 0.5f;  // 攻撃継続時間
+    bool isAttack = false;
 
-    bool isAttack;
-    Transform player;
-
+    public AudioClip se_Sword; // ソードSE
     AudioSource audioSource;
-    public AudioClip se_Sword;
 
     void Start()
     {
-        //AudioSource�̎擾
         audioSource = GetComponent<AudioSource>();
     }
 
     void Update()
     {
-        // �Q�[���v���C���̂ݔ���
-        if (GameManager.gameState != GameState.playing) return;
-
-        if (Input.GetMouseButtonDown(1) && isAttack)
+        // 右クリックが押されたら攻撃
+        if (Input.GetMouseButtonDown(1))
         {
-            Sword();
+            StartAttack();
         }
     }
 
-    void Sword()
+    void StartAttack()
     {
-        if (isAttack) return;
-        if (player == null) return;
+        if (isAttack) return; // 攻撃中なら何もしない
 
-        //SE
-        audioSource.PlayOneShot(se_Sword);
-        Debug.Log("������");
         isAttack = true;
 
-        Destroy(gameObject, deleteTime);
+        // ソードSE
+        audioSource.PlayOneShot(se_Sword);
+
+        // ソードコライダーを有効化
+        swordCollider.SetActive(true);
+
+        // 斬撃エフェクトをプレイヤーの前方に生成
+        Quaternion slashRotation = transform.rotation * Quaternion.Euler(0, 180, 0);
+        // ← 右から左に薙ぎ払う向き
+        GameObject slash = Instantiate(
+            swordPrefab,
+            transform.position + transform.forward * 1.0f,
+            slashRotation
+        );
+
+        // エフェクトがプレイヤーの動きに追従するように親子付け
+        slash.transform.parent = transform;
+
+        // 一定時間後に終了処理
+        StartCoroutine(EndAttack(slash));
+    }
+
+    IEnumerator EndAttack(GameObject slash)
+    {
+        yield return new WaitForSeconds(deleteTime);
+
+        // コライダーを無効化
+        swordCollider.SetActive(false);
+
+        // エフェクト削除
+        if (slash != null)
+            Destroy(slash);
+
+        // 攻撃フラグ解除
+        isAttack = false;
     }
 }

@@ -3,91 +3,77 @@ using UnityEngine;
 
 public class Shooter : MonoBehaviour
 {
-    public GameObject gate;         // GateƒIƒuƒWƒFƒNƒg‚Ìî•ñ
-    public GameObject bulletPrefab; // PlayerBullet‚ÌƒvƒŒƒnƒuî•ñ
-    public float shootSpeed = 100f; // ”ò‚Î‚·—Íi‘O•ûŒüj
-    public int shotPower = 10;      // c’e”
-    public float recoverySeconds = 3.0f; // 1”­‰ñ•œ‚É‚©‚©‚é•b”
-    public float upSpeed = 2.0f; //Bullet‚Ì‚‚³
+    public GameObject gate; // Gateã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+    public GameObject bulletPrefab; // ãƒãƒ¬ãƒƒãƒˆã®ãƒ—ãƒ¬ãƒãƒ–
+    public int bullet = 10;        //æ®‹å¼¾æ•°
+    public float shotPower = 100f; // ã‚·ãƒ§ãƒƒãƒˆãƒ‘ãƒ¯ãƒ¼
+    public float upSpeed = 0.2f;   // ä¸Šæ–¹å‘ã¸ã®è£œæ­£å€¤ï¼ˆé«˜ã•ï¼‰
+    public float shotRecoverTime = 3.0f; // å¼¾ã®å›å¾©æ™‚é–“
+    bool isAttack; // æ”»æ’ƒä¸­ãƒ•ãƒ©ã‚°
 
-    Transform player;   // ƒvƒŒƒCƒ„[‚ÌTransformî•ñ
-    bool isAttack; // ”­Ë‰Â”\ƒtƒ‰ƒO
-    Camera cam;         // ƒJƒƒ‰î•ñ
-    AudioSource audioSource; //Audioî•ñ
-
-    public AudioClip se_Shot;
+    public AudioClip se_Shot; // ã‚·ãƒ§ãƒƒãƒˆSE
+    AudioSource audioSource;
 
     void Start()
     {
-        // ƒvƒŒƒCƒ„[î•ñ‚Ìæ“¾
-        player = GameObject.FindGameObjectWithTag("Player").transform;
-
-        // qƒIƒuƒWƒFƒNƒg "Gate" ‚ğæ“¾
-        gate = player.Find("Gate").gameObject;
-
-        // ƒƒCƒ“ƒJƒƒ‰æ“¾
-        cam = Camera.main;
-
-        //AudioSource‚Ìæ“¾
         audioSource = GetComponent<AudioSource>();
-
-        // ­‚µ’x‚ê‚Ä”­Ë‰Â”\‚É‚·‚é
-        Invoke(nameof(ShootEnabled), 0.5f);
     }
 
     void Update()
     {
-        // ƒQ[ƒ€ƒvƒŒƒC’†‚Ì‚İ”½‰
+        // ãƒ—ãƒ¬ã‚¤ä¸­ã§ãªã‘ã‚Œã°å‡¦ç†ã—ãªã„
         if (GameManager.gameState != GameState.playing) return;
 
-        if (Input.GetMouseButtonDown(0) && isAttack)
+        // å·¦ã‚¯ãƒªãƒƒã‚¯ãŒæŠ¼ã•ã‚ŒãŸã‚‰ã‚·ãƒ§ãƒƒãƒˆ
+        if (Input.GetMouseButtonDown(0))
         {
             Shot();
         }
     }
 
-    // ”­Ë‰Â”\‚É‚·‚é
-    void ShootEnabled()
-    {
-        isAttack = true;
-    }
-
-    // ”­Ëˆ—
     void Shot()
     {
-        if (player == null || shotPower <= 0) return;
+        if (isAttack) return; // é€£å°„é˜²æ­¢
+        if (bullet <= 0) return; // æ®‹å¼¾ãªã—
 
-        //SE
+        isAttack = true;
+        bullet--;
+
+        // ã‚·ãƒ§ãƒƒãƒˆSE
         audioSource.PlayOneShot(se_Shot);
-        Debug.Log("‰¹‚ ‚è");
 
-        // Gate‚ÌˆÊ’uE‰ñ“]‚©‚ç’e‚ğ¶¬
-        Quaternion bulletRot = gate.transform.rotation * Quaternion.Euler(90f, 0f, 0f);
-        GameObject obj = Instantiate(bulletPrefab, gate.transform.position, bulletRot);
+        // Gateã®å›è»¢ã«Xè»¸90åº¦ã ã‘å›è»¢ã‚’åŠ ãˆã‚‹
+        Quaternion bulletRotation = gate.transform.rotation * Quaternion.Euler(90, 0, 0);
 
-        // Rigidbodyæ“¾‚µ‚Ä‘O•û‚Ö”­Ë
+        // å¼¾ã‚’ç”Ÿæˆï¼ˆGateã®ä½ç½®ã‹ã‚‰ï¼‰
+        GameObject obj = Instantiate(bulletPrefab, gate.transform.position, bulletRotation);
+
+        // Rigidbodyå–å¾—
         Rigidbody rbody = obj.GetComponent<Rigidbody>();
-        Vector3 shootDir = cam.transform.forward * shootSpeed;
-        shootDir.y += upSpeed;
 
-        // Rigidbody‚Å’e‚ğ”ò‚Î‚·
-        rbody.AddForce(shootDir, ForceMode.Impulse);
+        // ã‚«ãƒ¡ãƒ©ã®å‰æ–¹å‘ã‚’åŸºæº–ã«ã—ã¦ã€Yæ–¹å‘ã‚’å°‘ã—ä¸Šã’ã‚‹ï¼ˆupSpeedï¼‰
+        Vector3 shootDir = Camera.main.transform.forward;
+        shootDir.y += upSpeed; // ä¸Šæ–¹å‘è£œæ­£ï¼ˆshotPowerã«ä¾å­˜ã—ãªã„ï¼‰
 
-        // ’e‚ğÁ”ï
-        ConsumePower();
+        // åŠ›ã‚’åŠ ãˆã‚‹
+        rbody.AddForce(shootDir.normalized * shotPower, ForceMode.Impulse);
+
+        // æ®‹å¼¾å›å¾©ã‚³ãƒ«ãƒ¼ãƒãƒ³
+        StartCoroutine(RecoverShot());
+
+        // æ”»æ’ƒãƒ•ãƒ©ã‚°è§£é™¤
+        Invoke(nameof(ShootEnabled), 0.2f);
     }
 
-    // ’e‚ÌÁ”ï
-    void ConsumePower()
+    //å¼¾ã®ãƒªãƒ­ãƒ¼ãƒ‰ã‚³ãƒ«ãƒ¼ãƒãƒ³
+    IEnumerator RecoverShot()
     {
-        shotPower--;
-        StartCoroutine(RecoverPower());
+        yield return new WaitForSeconds(shotRecoverTime);
+        bullet++;
     }
 
-    // ’eƒŠƒ[ƒhƒRƒ‹[ƒ`ƒ“
-    IEnumerator RecoverPower()
+    void ShootEnabled()
     {
-        yield return new WaitForSeconds(recoverySeconds);
-        shotPower++;
+        isAttack = false;
     }
 }
