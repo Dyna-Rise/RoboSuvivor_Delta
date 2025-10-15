@@ -44,6 +44,7 @@ public class BossController : MonoBehaviour
         //ゲーム状態がプレイ中でなければ何もしない
         if (GameManager.gameState != GameState.playing) return;
         if (bossHP <= 0) return;
+        if (player == null) return;
 
         // ダメージ中の点滅処理
         if (isDamage)
