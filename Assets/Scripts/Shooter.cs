@@ -11,7 +11,7 @@ public class Shooter : MonoBehaviour
     public float upSpeed = 2.0f; //Bulletの高さ
 
     Transform player;   // プレイヤーのTransform情報
-    bool possibleShoot; // 発射可能フラグ
+    bool isAttack; // 発射可能フラグ
     Camera cam;         // カメラ情報
     AudioSource audioSource; //Audio情報
 
@@ -40,7 +40,7 @@ public class Shooter : MonoBehaviour
         // ゲームプレイ中のみ反応
         if (GameManager.gameState != GameState.playing) return;
 
-        if (Input.GetMouseButtonDown(0) && possibleShoot)
+        if (Input.GetMouseButtonDown(0) && isAttack)
         {
             Shot();
         }
@@ -49,7 +49,7 @@ public class Shooter : MonoBehaviour
     // 発射可能にする
     void ShootEnabled()
     {
-        possibleShoot = true;
+        isAttack = true;
     }
 
     // 発射処理
