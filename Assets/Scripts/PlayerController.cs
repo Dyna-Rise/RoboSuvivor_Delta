@@ -1,4 +1,4 @@
-using Unity.VisualScripting;
+
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -75,10 +75,20 @@ public class PlayerController : MonoBehaviour
 
             if (controller.isGrounded) moveDirection.y = 0.0f;
 
-            //Animation();
-
-
         }
+
+        if (isDamege)
+        {
+            Blinking();
+            damageTime = damageTime - Time.deltaTime;
+            if (damageTime < 0)
+            {
+                isDamege = false;
+                damageTime = damageTimeIni;
+                body.SetActive(true); //ダメージ終了後確実に表示する
+            }
+        }
+
 
         if (GameManager.gameState == GameState.gameover)
         {
@@ -100,45 +110,14 @@ public class PlayerController : MonoBehaviour
         // Enemy か EnemyBullet に当たったら
         if (hit.gameObject.CompareTag("Enemy") || hit.gameObject.CompareTag("EnemyBullet"))
         {
-            Debug.Log("敵に当たった");
             //GameManager の  public static int playerHP = 10; を減らす
             GameManager.playerHP--;
-            //isDamege = true;
-           // moveDirection.z = 0.0f;
-            //moveDirection.x = 0.0f;
-
-
-            Debug.Log("点滅処理");
-             
-                damageTime = (damageTime - Time.deltaTime);
-
-                //ダメージ中なら点滅
-                //Blinking();
-
-                float val = Mathf.Sin(Time.deltaTime * 50);
-                if (val >= 0) body.SetActive(true);
-                else body.SetActive(false);
-         
-
-
-            body.SetActive(true); //ダメージ終了後確実に表示する
-
-            damageTime = damageTimeIni;
-
+            isDamege = true;
 
             if (GameManager.playerHP <= 0)
             {
-                if (x >= 2.0f)
-                {
-                    //GameOver();
-                    x = x + Time.deltaTime;
-                }
-                else
-                {
-                    //playerHPが0になったら gameover
-                    GameManager.gameState = GameState.gameover;
-                }
-
+                //playerHPが0になったら gameover
+                GameManager.gameState = GameState.gameover;
             }
 
             isDamege = true;
@@ -182,10 +161,16 @@ public class PlayerController : MonoBehaviour
 
     void Blinking()
     {
-        Debug.Log("点滅処理");
-        float val = Mathf.Sin(Time.deltaTime * 50);
-        if (val >= 0) body.SetActive(true);
-        else body.SetActive(false);
+        float val = Mathf.Sin(Time.time * 50);
+        Debug.Log("点滅処理  " + val);
+        if (val >= 0)
+        {
+            body.SetActive(true);
+        }
+        else
+        {
+            body.SetActive(false);
+        }
     }
 
 
