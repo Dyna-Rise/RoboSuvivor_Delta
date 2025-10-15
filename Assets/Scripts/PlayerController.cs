@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -8,11 +9,15 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed = 5.0f; //移動スピード
     public float jumpForce = 8.0f; //ジャンプパワー
     public float gravity = 20.0f; //重力
+    public float damageTimeIni = 2.0f; //ダメージ時間
+    float damageTime = 2.0f;
+    float x = 2.0f;
+
 
     Vector3 moveDirection = Vector3.zero; //移動成分
 
     public GameObject body; //点滅対象
-    bool isDamege; //ダメージフラグ
+    bool isDamege = false; //ダメージフラグ
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -35,10 +40,12 @@ public class PlayerController : MonoBehaviour
                 if (Input.GetAxis("Vertical") != 0.0f)
                 {
                     moveDirection.z = Input.GetAxis("Vertical") * moveSpeed;
+                    animator.SetBool("walk", true); //走るフラグをOn
                 }
                 else
                 {
                     moveDirection.z = 0.0f;　//キーが押されていないなら動かさない
+                    animator.SetBool("walk", false); //走るフラグをOFF
                 }
 
                 //左右キーが押されたら動かす
@@ -57,7 +64,7 @@ public class PlayerController : MonoBehaviour
                     //ジャンプボタンが押されたら
                     moveDirection.y = jumpForce;
                     // アニメ
-
+                    animator.SetTrigger("jump");  //ジャンプのアニメクリップの発動
                 }
             }
 
@@ -68,45 +75,125 @@ public class PlayerController : MonoBehaviour
 
             if (controller.isGrounded) moveDirection.y = 0.0f;
 
-            if (isDamege)
-            {
-                moveDirection.z = 0.0f;
-                moveDirection.x = 0.0f;
+            //Animation();
 
-                Blinking();
+
+        }
+
+        if (GameManager.gameState == GameState.gameover)
+        {
+            //GameOver();
+        }
+
+
+
+    }
+
+    //何かに当たったら時の処理
+    private void OnTriggerEnter(Collider hit)
+    {
+
+        //ダメージ中は何もしない
+        if (isDamege) return;
+        //Debug.Log("何かに当たった   "+ hit.gameObject.CompareTag("Enemy"));
+
+        // Enemy か EnemyBullet に当たったら
+        if (hit.gameObject.CompareTag("Enemy") || hit.gameObject.CompareTag("EnemyBullet"))
+        {
+            Debug.Log("敵に当たった");
+            //GameManager の  public static int playerHP = 10; を減らす
+            GameManager.playerHP--;
+            //isDamege = true;
+           // moveDirection.z = 0.0f;
+            //moveDirection.x = 0.0f;
+
+
+            Debug.Log("点滅処理");
+             
+                damageTime = (damageTime - Time.deltaTime);
+
+                //ダメージ中なら点滅
+                //Blinking();
+
+                float val = Mathf.Sin(Time.deltaTime * 50);
+                if (val >= 0) body.SetActive(true);
+                else body.SetActive(false);
+         
+
+
+            body.SetActive(true); //ダメージ終了後確実に表示する
+
+            damageTime = damageTimeIni;
+
+
+            if (GameManager.playerHP <= 0)
+            {
+                if (x >= 2.0f)
+                {
+                    //GameOver();
+                    x = x + Time.deltaTime;
+                }
+                else
+                {
+                    //playerHPが0になったら gameover
+                    GameManager.gameState = GameState.gameover;
+                }
+
             }
+
+            isDamege = true;
+        }
+
+    }
+
+    void Animation()
+    {
+        //入力がある場合
+        if (moveDirection.z != 0 || moveDirection.x != 0)
+        {
+            //ひとまずRunアニメを走らせる
+            //animator.SetTrigger("walk");
+
+            //angleZを使って方角を決める　direction int型
+            //int型のdirection 下:0 上:1 右:2 左:それ以外
+
+            //if (moveDirection.z > -135f && moveDirection.z < -45f)  //下
+            //{
+            //    animator.SetInteger("direction", 0);
+            //}
+            //else if (moveDirection.z >= -45f && moveDirection.z <= 45f)  //右
+            //{
+            //    //animator.SetInteger("direction", 2);
+            //}
+            //else if (moveDirection.z > 45f && moveDirection.z < 135f)  //上
+            //{
+            //    animator.SetInteger("direction", 1);
+            //}
+            //else                                    //左
+            //{
+            //    animator.SetInteger("direction", 3);
+            //}
+        }
+        else //何も入力がない場合
+        {
+            //animator.SetBool("walk", false); //走るフラグをOFF
         }
     }
 
     void Blinking()
     {
+        Debug.Log("点滅処理");
         float val = Mathf.Sin(Time.deltaTime * 50);
         if (val >= 0) body.SetActive(true);
         else body.SetActive(false);
     }
 
-    //何かに当たったら時の処理
-    private void OnControllerColliderHit(ControllerColliderHit hit)
+
+    void GameOver()
     {
-        //ダメージ中は何もしない
-        if (isDamege) return;
 
-        // Enemy か EnemyBullet に当たったら
-        if ( hit.gameObject.CompareTag("Enemy") || hit.gameObject.CompareTag("EnemyBullet") )
-        {
-            //GameManager の  public static int playerHP = 10; を減らす
-            GameManager.playerHP -- ;
-
-            if (GameManager.playerHP <= 0)
-            {
-
-            //playerHPが0になったら gameover
-            GameManager.gameState = GameState.gameover;
-            //自分は消滅
-            Destroy(gameObject, 1.0f);
-
-            }
-        }
-       
+        animator.SetTrigger("die");  //死亡のアニメクリップの発動
+                                     //自分は消滅
+        Destroy(gameObject, 3.0f);
     }
 }
