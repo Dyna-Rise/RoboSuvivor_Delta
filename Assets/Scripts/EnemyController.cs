@@ -1,14 +1,14 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Audio;
 
-[RequireComponent(typeof(NavMeshAgent))]
 public class EnemyController : MonoBehaviour
 {
     public int enemyHP = 5;//Enemyの体力
     public float enemySpeed = 5.0f;//スピード
 
-    public GameObject body; // 点滅させるメッシュを持つGameObject
+    public GameObject Body; // 点滅させるメッシュを持つGameObject
 
     public float detectionRange = 80f;//索敵距離
     public float attackRange = 30f;//攻撃距離
@@ -30,14 +30,30 @@ public class EnemyController : MonoBehaviour
     // ★ GameManagerのインスタンスを保持する変数は引き続き必要
     private GameManager gameMgr;
 
+    private AudioSource audioSource;
+    private Animator animator;
+    private bool isDead = false;
+
+
+    public AudioClip seShot;
+    public AudioClip seDamage;
+    public AudioClip seExplosion;
+
+    public GameObject flamePrefab;
+
+
     void Start()
     {
+        Time.timeScale = 1f;
         player = GameObject.FindGameObjectWithTag("Player");
         navMeshAgent = GetComponent<NavMeshAgent>();
 
         // ★ GameManagerのインスタンスを取得して、リスト操作に備える
         // FindObjectOfTypeはシーンから指定した型のコンポーネントを一つ見つける
         gameMgr = FindAnyObjectByType<GameManager>();
+
+        audioSource = GetComponent<AudioSource>();
+        animator = GetComponent<Animator>();
 
         navMeshAgent.speed = enemySpeed;
         navMeshAgent.stoppingDistance = stopRange;
@@ -55,13 +71,11 @@ public class EnemyController : MonoBehaviour
 
     void Update()
     {
-        // --- 実行条件のチェック ---
-        // ★ GameManagerのstatic変数 gameState を直接参照してチェック
-        if (GameManager.gameState != GameState.playing) return;
-
-        if (player == null) return;
-        if (enemyHP <= 0) return;
-        if (isDamage) return;
+        // ★ 変更：死亡していたら以降の処理を一切行わない
+        if (GameManager.gameState != GameState.playing || player == null || enemyHP <= 0 || isDamage || isDead)
+        {
+            return;
+        }
 
         // プレイヤーとの距離を常に計測
         float distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
@@ -121,6 +135,9 @@ public class EnemyController : MonoBehaviour
         // 弾を生成し、前方に飛ばす
         if (bulletPrefab != null && gate != null)
         {
+            // ショットSEを再生
+            audioSource.PlayOneShot(seShot);
+
             // 1. 発射口の向きを取得
             Quaternion initialRotation = gate.transform.rotation;
 
@@ -148,58 +165,107 @@ public class EnemyController : MonoBehaviour
     }
 
     // ダメージ判定
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider other)
     {
-        if (isDamage || enemyHP <= 0) return;
+        // 死亡状態もチェック
+        if (isDamage || enemyHP <= 0 || isDead) return;
+
 
         int damage = 0;
-        if (collision.gameObject.CompareTag("PlayerBullet"))
-        {
-            damage = 1;
-            Destroy(collision.gameObject);
-        }
-        else if (collision.gameObject.CompareTag("PlayerSword"))
+        if (other.gameObject.CompareTag("PlayerSword"))
         {
             damage = 3;
         }
+        else if (other.gameObject.CompareTag("PlayerBullet"))
+        {
+            damage = 1;
+            Destroy(other.gameObject); // 弾の場合は弾だけ消す
+        }
 
+
+        // ダメージが有効な場合
         if (damage > 0)
         {
+            // ダメージSEを再生
+            audioSource.PlayOneShot(seDamage);
+
+            // ① すぐに無敵状態にして、連続ヒットを防ぐ
+            isDamage = true;
+
+            // ② ダメージを一度だけ与える
             enemyHP -= damage;
-            if (enemyHP <= 0)
-            {
-                // --- 死亡処理 ---
-                // GameManagerのリストから自身を削除
-                if (gameMgr != null)
-                {
-                    gameMgr.enemyList.Remove(this.gameObject);
-                }
-                // 自身のGameObjectをシーンから削除
-                Destroy(gameObject);
-            }
-            else
-            {
-                // ダメージエフェクトを開始
-                StartCoroutine(DamageFlash());
-            }
+            Debug.Log("ダメージ！ 残りHP: " + enemyHP);
+
+            // ③ HPの状態に関わらず、必ず点滅コルーチンを呼び出す
+            StartCoroutine(DamageFlash());
+
         }
     }
+
+
 
     // ダメージ時の点滅エフェクト
     IEnumerator DamageFlash()
     {
-        isDamage = true;
-        Renderer bodyRenderer = body.GetComponent<Renderer>();
-        if (bodyRenderer != null)
+        Debug.Log("DamageFlash: 点滅処理を開始します。");
+
+        // 念のため、複数のRendererに対応できるようにしておく
+        Renderer[] renderers = Body.GetComponentsInChildren<Renderer>(true);
+
+        if (renderers.Length > 0)
         {
+            // 点滅処理
             for (int i = 0; i < 3; i++)
             {
-                bodyRenderer.enabled = false;
+                foreach (var r in renderers) r.enabled = false;
                 yield return new WaitForSeconds(0.1f);
-                bodyRenderer.enabled = true;
+                foreach (var r in renderers) r.enabled = true;
                 yield return new WaitForSeconds(0.1f);
             }
         }
-        isDamage = false;
+
+        if (enemyHP <= 0)
+        {
+            // 死亡処理を開始
+            isDead = true; // 死亡状態にする（重要）
+            navMeshAgent.isStopped = true; // 移動を完全に停止
+
+            // 死亡アニメーションを再生
+
+            animator.SetTrigger("Die");
+
+            // 死亡SEを再生（オブジェクトが消えても音が鳴り続ける方法）
+            AudioSource.PlayClipAtPoint(seExplosion, transform.position);
+
+            // 死亡エフェクトを生成
+            if (flamePrefab != null)
+            {
+                Instantiate(flamePrefab, transform.position, Quaternion.identity);
+            }
+
+            // アニメーションが終わるまで待つ（時間はアニメの長さに合わせて調整）
+            yield return new WaitForSeconds(2.0f);
+
+            // GameManagerのリストから自身を削除
+            if (gameMgr != null)
+            {
+                gameMgr.enemyList.Remove(this.gameObject);
+            }
+
+            // 自身のGameObjectをシーンから削除
+            Destroy(gameObject);
+        }
+        else
+        {
+            // HPが残っていれば、無敵状態を解除する
+            isDamage = false;
+        }
+       
+    }
+
+    // ギズモで範囲を表示（デバッグ用）
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.DrawWireSphere(transform.position, detectionRange);
     }
 }
