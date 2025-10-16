@@ -77,6 +77,7 @@ GameObject:
   - component: {fileID: 4081123908964859673}
   - component: {fileID: 2804840249253866096}
   - component: {fileID: 7340182906075510135}
+  - component: {fileID: 3966157361125376100}
   m_Layer: 9
   m_Name: Boss
   m_TagString: Enemy
@@ -283,6 +284,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bossHP: 30
   body: {fileID: 0}
+  closeRange: 3
+  attackInterval: 5
+  moveSpeed: 5
+  bulletPrefab: {fileID: 6661650154168110023, guid: d6af67595b24ddb4dbea8a0f393d64c8, type: 3}
+  gate: {fileID: 479167254591033205}
+  bulletSpeed: 100
+  barrierPrefab: {fileID: 2537263942911418905, guid: d74626caef558da4fb56793955c4637a, type: 3}
+  explosionPrefab: {fileID: 2839272602830932229, guid: 735fd581f0ab52e44a11009cbfce9dd3, type: 3}
+  se_Shot: {fileID: 8300000, guid: e9d67448e6d9ef749a7b4bdf5711c64b, type: 3}
+  se_Damage: {fileID: 8300000, guid: 0d30ac30267e842419537598daf5f23d, type: 3}
+  se_Tackle: {fileID: 8300000, guid: 5758e7b2fb400534bbbe13109f2092b1, type: 3}
+  se_Barrier: {fileID: 8300000, guid: 49239c753146a9249b207c80f8516c8c, type: 3}
+  se_Explosion: {fileID: 8300000, guid: 0bdbb689c62e18943b959eb8102051b0, type: 3}
+--- !u!114 &3966157361125376100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8653687361996103961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 589eeee6f890a884ca1dd6ed86058571, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bossHP: 30
+  body: {fileID: 5984871005895375351}
   closeRange: 3
   attackInterval: 5
   moveSpeed: 5

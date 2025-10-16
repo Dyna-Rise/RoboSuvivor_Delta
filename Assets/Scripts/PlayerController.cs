@@ -21,11 +21,24 @@ public class PlayerController : MonoBehaviour
     public GameObject body; //点滅対象
     bool isDamege = false; //ダメージフラグ
 
+    AudioSource audioSource;
+
+    public AudioClip se_Walk;
+    public AudioClip se_Damage;
+    public AudioClip se_Explosion;
+    public AudioClip se_Jump;
+
+    //足音判定
+    float footstepInterval = 0.6f; //足音間隔
+    float footstepTimer; //時間計測
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         controller = GetComponent<CharacterController>();
         //animator = GetComponent<Animator>();
+
+        audioSource = GetComponent<AudioSource>();
 
     }
 
@@ -96,6 +109,9 @@ public class PlayerController : MonoBehaviour
                 {
                     //ジャンプボタンが押されたら
                     moveDirection.y = jumpForce;
+
+                    audioSource.PlayOneShot(se_Jump);
+
                     // アニメ
                     animator.SetTrigger("jump");  //ジャンプのアニメクリップの発動
                 }
@@ -137,7 +153,8 @@ public class PlayerController : MonoBehaviour
         }
 
 
-
+        //足音
+        HandleFootsteps();
 
     }
 
@@ -156,9 +173,14 @@ public class PlayerController : MonoBehaviour
             GameManager.playerHP--;
             isDamege = true;
 
+            audioSource.PlayOneShot(se_Damage);
+
             if (GameManager.playerHP <= 0)
             {
                 animator.SetTrigger("die");  //死亡のアニメクリップの発動
+
+                audioSource.PlayOneShot(se_Explosion);
+
                 //playerHPが0になったら gameover
                 Debug.Log("死んだ");
                 moveDirection.x = 0.0f;
@@ -183,6 +205,26 @@ public class PlayerController : MonoBehaviour
         else
         {
             body.SetActive(false);
+        }
+    }
+
+    //足音
+    void HandleFootsteps()
+    {
+        //プレイヤーが動いていれば
+        if (moveDirection.x != 0 || moveDirection.z != 0)
+        {
+            footstepTimer += Time.deltaTime; //時間計測
+
+            if (footstepTimer >= footstepInterval) //インターバルチェック
+            {
+                audioSource.PlayOneShot(se_Walk);
+                footstepTimer = 0;
+            }
+        }
+        else //動いていなければ時間計測リセット
+        {
+            footstepTimer = 0f;
         }
     }
 
