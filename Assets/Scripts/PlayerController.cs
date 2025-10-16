@@ -4,14 +4,16 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     CharacterController controller;
-    Animator animator;
+    public Animator animator;
 
     public float moveSpeed = 5.0f; //移動スピード
     public float jumpForce = 8.0f; //ジャンプパワー
     public float gravity = 20.0f; //重力
     public float damageTimeIni = 2.0f; //ダメージ時間
     float damageTime = 2.0f;
-    float x = 2.0f;
+    float deadTime = 10.0f;
+    bool isDead;
+
 
 
     Vector3 moveDirection = Vector3.zero; //移動成分
@@ -23,7 +25,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         controller = GetComponent<CharacterController>();
-        animator = GetComponent<Animator>();
+        //animator = GetComponent<Animator>();
 
     }
 
@@ -39,8 +41,18 @@ public class PlayerController : MonoBehaviour
                 //上下キーが押されたら動かす
                 if (Input.GetAxis("Vertical") != 0.0f)
                 {
-                    moveDirection.z = Input.GetAxis("Vertical") * moveSpeed;
+
+                    if (Input.GetAxis("Vertical") > 0.0f)
+                    {
+                        animator.SetInteger("direction", 0);
+                    }
+                    else
+                    {
+                        animator.SetInteger("direction", 2);
+                    }
                     animator.SetBool("walk", true); //走るフラグをOn
+                    Debug.Log("上下キー　");
+                    moveDirection.z = Input.GetAxis("Vertical") * moveSpeed;
                 }
                 else
                 {
@@ -51,31 +63,50 @@ public class PlayerController : MonoBehaviour
                 //左右キーが押されたら動かす
                 if (Input.GetAxis("Horizontal") != 0.0f)
                 {
+                    if (Input.GetAxis("Horizontal") > 0.0f)
+                    {
+                        animator.SetInteger("direction", 3);
+                    }
+                    else
+                    {
+                        animator.SetInteger("direction", 1);
+                    }
+                    animator.SetBool("walk", true); //走るフラグをOn
                     moveDirection.x = Input.GetAxis("Horizontal") * moveSpeed;
                 }
                 else
                 {
                     moveDirection.x = 0.0f;　//キーが押されていないなら動かさない
+                    //animator.SetBool("walk", false); //走るフラグをOFF
                 }
 
 
-                if (Input.GetButton("Jump"))
+                //マウスクリックでShootアニメ起動
+                if (Input.GetMouseButton(0))
                 {
-                    //ジャンプボタンが押されたら
-                    moveDirection.y = jumpForce;
-                    // アニメ
-                    animator.SetTrigger("jump");  //ジャンプのアニメクリップの発動
+                    animator.SetTrigger("shot");  //ショットのアニメクリップの発動
                 }
+
             }
 
-            moveDirection.y -= gravity * Time.deltaTime;
+            if (Input.GetButtonDown("Jump"))
+            {
+                //ジャンプボタンが押されたら
+                moveDirection.y = jumpForce;
+                // アニメ
+                animator.SetTrigger("jump");  //ジャンプのアニメクリップの発動
+            }
 
+            //常に重力をかける
+            moveDirection.y -= gravity * Time.deltaTime;
+            //体の向きに合わせて前後左右をGlobal座標系に変換
             Vector3 globalDirection = transform.TransformDirection(moveDirection);
             controller.Move(globalDirection * Time.deltaTime);
-
+            //接地したらyは0に
             if (controller.isGrounded) moveDirection.y = 0.0f;
 
         }
+
 
         if (isDamege)
         {
@@ -89,11 +120,18 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-
-        if (GameManager.gameState == GameState.gameover)
+        if (isDead)
         {
-            //GameOver();
+            deadTime = deadTime - Time.deltaTime;
+            //Debug.Log("死亡タイマー　　" +  deadTime);
+            if (deadTime < 0)
+            {
+
+                GameManager.gameState = GameState.gameover;
+                Destroy(gameObject, 3.0f); //自分自身の消失
+            }
         }
+
 
 
 
@@ -117,7 +155,12 @@ public class PlayerController : MonoBehaviour
             if (GameManager.playerHP <= 0)
             {
                 //playerHPが0になったら gameover
-                GameManager.gameState = GameState.gameover;
+                Debug.Log("死んだ");
+                moveDirection.x = 0.0f;
+                moveDirection.z = 0.0f;
+                isDead = true;
+                animator.SetTrigger("die");  //死亡のアニメクリップの発動
+
             }
 
             isDamege = true;
@@ -125,44 +168,10 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    void Animation()
-    {
-        //入力がある場合
-        if (moveDirection.z != 0 || moveDirection.x != 0)
-        {
-            //ひとまずRunアニメを走らせる
-            //animator.SetTrigger("walk");
-
-            //angleZを使って方角を決める　direction int型
-            //int型のdirection 下:0 上:1 右:2 左:それ以外
-
-            //if (moveDirection.z > -135f && moveDirection.z < -45f)  //下
-            //{
-            //    animator.SetInteger("direction", 0);
-            //}
-            //else if (moveDirection.z >= -45f && moveDirection.z <= 45f)  //右
-            //{
-            //    //animator.SetInteger("direction", 2);
-            //}
-            //else if (moveDirection.z > 45f && moveDirection.z < 135f)  //上
-            //{
-            //    animator.SetInteger("direction", 1);
-            //}
-            //else                                    //左
-            //{
-            //    animator.SetInteger("direction", 3);
-            //}
-        }
-        else //何も入力がない場合
-        {
-            //animator.SetBool("walk", false); //走るフラグをOFF
-        }
-    }
-
     void Blinking()
     {
         float val = Mathf.Sin(Time.time * 50);
-        Debug.Log("点滅処理  " + val);
+        //Debug.Log("点滅処理  " + val);
         if (val >= 0)
         {
             body.SetActive(true);
@@ -173,12 +182,4 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
-    void GameOver()
-    {
-
-        animator.SetTrigger("die");  //死亡のアニメクリップの発動
-                                     //自分は消滅
-        Destroy(gameObject, 3.0f);
-    }
 }
