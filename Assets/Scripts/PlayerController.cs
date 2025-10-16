@@ -1,4 +1,5 @@
 
+using System.Collections;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -11,9 +12,7 @@ public class PlayerController : MonoBehaviour
     public float gravity = 20.0f; //重力
     public float damageTimeIni = 2.0f; //ダメージ時間
     float damageTime = 2.0f;
-    //float deadTime = 10.0f;
-    float deadTime = 0f;
-    bool isDead;
+    bool isDead; //死亡フラグ
 
 
 
@@ -37,7 +36,6 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         controller = GetComponent<CharacterController>();
-        //animator = GetComponent<Animator>();
 
         audioSource = GetComponent<AudioSource>();
 
@@ -47,87 +45,87 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         //ゲームステータスがplaying or gameclear であれば動かす
-        if (GameManager.gameState == GameState.playing || GameManager.gameState == GameState.gameclear)
+        if (!(GameManager.gameState == GameState.playing || GameManager.gameState == GameState.gameclear))
+            return;
+
+        //if (!isDead)
+        //{
+        if (GameManager.playerHP <= 0) return;
+
+
+        //地面にいる状態であれば動かす
+        if (controller.isGrounded)
         {
-            if (!isDead)
+            //上下キーが押されたら動かす
+            if (Input.GetAxis("Vertical") != 0.0f)
             {
 
-                //地面にいる状態であれば動かす
-                if (controller.isGrounded)
+                if (Input.GetAxis("Vertical") > 0.0f)
                 {
-                    //上下キーが押されたら動かす
-                    if (Input.GetAxis("Vertical") != 0.0f)
-                    {
-
-                        if (Input.GetAxis("Vertical") > 0.0f)
-                        {
-                            animator.SetInteger("direction", 0);
-                        }
-                        else
-                        {
-                            animator.SetInteger("direction", 2);
-                        }
-                        animator.SetBool("walk", true); //走るフラグをOn
-                        Debug.Log("上下キー　");
-                        moveDirection.z = Input.GetAxis("Vertical") * moveSpeed;
-                    }
-                    else
-                    {
-                        moveDirection.z = 0.0f; //キーが押されていないなら動かさない
-                        animator.SetBool("walk", false); //走るフラグをOFF
-                    }
-
-                    //左右キーが押されたら動かす
-                    if (Input.GetAxis("Horizontal") != 0.0f)
-                    {
-                        if (Input.GetAxis("Horizontal") > 0.0f)
-                        {
-                            animator.SetInteger("direction", 3);
-                        }
-                        else
-                        {
-                            animator.SetInteger("direction", 1);
-                        }
-                        animator.SetBool("walk", true); //走るフラグをOn
-                        moveDirection.x = Input.GetAxis("Horizontal") * moveSpeed;
-                    }
-                    else
-                    {
-                        moveDirection.x = 0.0f; //キーが押されていないなら動かさない
-                                                //animator.SetBool("walk", false); //走るフラグをOFF
-                    }
-
-
-                    //マウスクリックでShootアニメ起動
-                    if (Input.GetMouseButton(0))
-                    {
-                        animator.SetTrigger("shot");  //ショットのアニメクリップの発動
-                    }
-
+                    animator.SetInteger("direction", 0);
                 }
-
-                if (Input.GetButtonDown("Jump"))
+                else
                 {
-                    //ジャンプボタンが押されたら
-                    moveDirection.y = jumpForce;
-
-                    audioSource.PlayOneShot(se_Jump);
-
-                    // アニメ
-                    animator.SetTrigger("jump");  //ジャンプのアニメクリップの発動
+                    animator.SetInteger("direction", 2);
                 }
+                animator.SetBool("walk", true); //走るフラグをOn
+                Debug.Log("上下キー　");
+                moveDirection.z = Input.GetAxis("Vertical") * moveSpeed;
+            }
+            else
+            {
+                moveDirection.z = 0.0f; //キーが押されていないなら動かさない
+                animator.SetBool("walk", false); //走るフラグをOFF
+            }
 
-                //常に重力をかける
-                moveDirection.y -= gravity * Time.deltaTime;
-                //体の向きに合わせて前後左右をGlobal座標系に変換
-                Vector3 globalDirection = transform.TransformDirection(moveDirection);
-                controller.Move(globalDirection * Time.deltaTime);
-                //接地したらyは0に
-                if (controller.isGrounded) moveDirection.y = 0.0f;
+            //左右キーが押されたら動かす
+            if (Input.GetAxis("Horizontal") != 0.0f)
+            {
+                if (Input.GetAxis("Horizontal") > 0.0f)
+                {
+                    animator.SetInteger("direction", 3);
+                }
+                else
+                {
+                    animator.SetInteger("direction", 1);
+                }
+                animator.SetBool("walk", true); //走るフラグをOn
+                moveDirection.x = Input.GetAxis("Horizontal") * moveSpeed;
+            }
+            else
+            {
+                moveDirection.x = 0.0f; //キーが押されていないなら動かさない
+                animator.SetBool("walk", false); //走るフラグをOFF
+            }
+
+
+            //マウスクリックでShootアニメ起動
+            if (Input.GetMouseButton(0))
+            {
+                animator.SetTrigger("shot");  //ショットのアニメクリップの発動
+            }
+
+
+            if (Input.GetButtonDown("Jump"))
+            {
+                //ジャンプボタンが押されたら
+                moveDirection.y = jumpForce;
+
+                audioSource.PlayOneShot(se_Jump);
+
+                // アニメ
+                animator.SetTrigger("jump");  //ジャンプのアニメクリップの発動
             }
 
         }
 
+        //常に重力をかける
+        moveDirection.y -= gravity * Time.deltaTime;
+        //体の向きに合わせて前後左右をGlobal座標系に変換
+        Vector3 globalDirection = transform.TransformDirection(moveDirection);
+        controller.Move(globalDirection * Time.deltaTime);
+        //接地したらyは0に
+        if (controller.isGrounded) moveDirection.y = 0.0f;
 
         if (isDamege)
         {
@@ -140,19 +138,6 @@ public class PlayerController : MonoBehaviour
                 body.SetActive(true); //ダメージ終了後確実に表示する
             }
         }
-
-        if (isDead)
-        {
-            deadTime = deadTime - Time.deltaTime;
-            //Debug.Log("死亡タイマー　　" +  deadTime);
-            if (deadTime < 0)
-            {
-                animator.SetTrigger("die");  //死亡のアニメクリップの発動
-                GameManager.gameState = GameState.gameover;
-                Destroy(gameObject, 3.0f); //自分自身の消失
-            }
-        }
-
 
         //足音
         HandleFootsteps();
@@ -168,7 +153,7 @@ public class PlayerController : MonoBehaviour
         //Debug.Log("何かに当たった   "+ hit.gameObject.CompareTag("Enemy"));
 
         // Enemy か EnemyBullet に当たったら
-        if (hit.gameObject.CompareTag("Enemy") || hit.gameObject.CompareTag("EnemyBullet"))
+        if (hit.gameObject.CompareTag("Enemy") || hit.gameObject.CompareTag("EnemyBullet") || hit.gameObject.CompareTag("Barrier"))
         {
             //GameManager の  public static int playerHP = 10; を減らす
             GameManager.playerHP--;
@@ -176,7 +161,7 @@ public class PlayerController : MonoBehaviour
 
             audioSource.PlayOneShot(se_Damage);
 
-            if (GameManager.playerHP <= 0)
+            if (GameManager.playerHP <= 0 && !isDead)
             {
                 animator.SetTrigger("die");  //死亡のアニメクリップの発動
 
@@ -186,13 +171,25 @@ public class PlayerController : MonoBehaviour
                 Debug.Log("死んだ");
                 moveDirection.x = 0.0f;
                 moveDirection.z = 0.0f;
-                isDead = true;
-                
+                //isDead = true;
+
+                //死亡コルーチン
+                StartCoroutine(Dead());
+
             }
 
             isDamege = true;
         }
 
+    }
+
+    //死亡コルーチン
+    IEnumerator Dead()
+    {
+        isDead = true;
+        yield return new WaitForSeconds(3); //３秒待つ
+        Destroy(gameObject);
+        GameManager.gameState = GameState.gameover;
     }
 
     void Blinking()
