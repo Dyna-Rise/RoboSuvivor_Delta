@@ -159,6 +159,7 @@ GameObject:
   - component: {fileID: 624023665697719030}
   - component: {fileID: 6843778202069422937}
   - component: {fileID: 6166302034573783699}
+  - component: {fileID: 4320242538569912102}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -385,6 +386,26 @@ MonoBehaviour:
   swordPrefab: {fileID: 9151639417806382172, guid: 6017007c4ebd9314ea5cb9d5f35c9c40, type: 3}
   deleteTime: 0.5
   se_Sword: {fileID: 8300000, guid: cccd8d2a957120c469a64a4b265b5666, type: 3}
+--- !u!114 &4320242538569912102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9039041703142723107}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c3db14412be4424f87a82873a520ae9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dashSpeedMultiplier: 2
+  maxDashStamina: 100
+  currentDashStamina: 0
+  dashStaminaConsumptionRate: 30
+  dashStaminaRecoveryRate: 20
+  dashStaminaRecoveryDelay: 1
+  doublePressTimeThreshold: 0.2
+  se_Dash: {fileID: 8300000, guid: 8620b9900bd094947b8945dfc2eff28b, type: 3}
 --- !u!1001 &2405631957713543553
 PrefabInstance:
   m_ObjectHideFlags: 0
