@@ -57,15 +57,7 @@ public class EnemyController : MonoBehaviour
         navMeshAgent.speed = enemySpeed;
         navMeshAgent.stoppingDistance = stopRange;
 
-        // GameManagerのインスタンスが見つかっていれば、そのenemyListに自身を追加
-        if (gameMgr != null)
-        {
-            gameMgr.enemyList.Add(this.gameObject);
-        }
-        else
-        {
-            Debug.LogError("GameManagerがシーン内に見つかりません。");
-        }
+
     }
 
     void Update()
@@ -200,8 +192,6 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-
-
     // ダメージ時の点滅エフェクト
     IEnumerator DamageFlash()
     {
@@ -249,7 +239,7 @@ public class EnemyController : MonoBehaviour
                 gameMgr.enemyList.Remove(this.gameObject);
             }
 
-            // 自身のGameObjectをシーンから削除
+            //自身のGameObjectをシーンから削除
             Destroy(gameObject);
         }
         else
