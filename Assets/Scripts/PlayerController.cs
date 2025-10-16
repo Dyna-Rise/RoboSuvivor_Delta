@@ -11,7 +11,8 @@ public class PlayerController : MonoBehaviour
     public float gravity = 20.0f; //重力
     public float damageTimeIni = 2.0f; //ダメージ時間
     float damageTime = 2.0f;
-    float deadTime = 10.0f;
+    //float deadTime = 10.0f;
+    float deadTime = 0f;
     bool isDead;
 
 

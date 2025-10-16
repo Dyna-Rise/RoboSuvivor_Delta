@@ -30,7 +30,8 @@ public class EnemyController : MonoBehaviour
     private GameManager gameMgr;
 
     private AudioSource audioSource;
-    private Animator animator;
+    //private Animator animator;
+    public Animator animator;
     private bool isDead = false;
 
 
@@ -52,7 +53,7 @@ public class EnemyController : MonoBehaviour
         gameMgr = FindAnyObjectByType<GameManager>();
 
         audioSource = GetComponent<AudioSource>();
-        animator = GetComponent<Animator>();
+        //animator = GetComponent<Animator>();
 
         navMeshAgent.speed = enemySpeed;
         navMeshAgent.stoppingDistance = stopRange;
@@ -219,7 +220,8 @@ public class EnemyController : MonoBehaviour
 
             // 死亡アニメーションを再生
 
-            animator.SetTrigger("Die");
+            //animator.SetTrigger("Die");
+            animator.SetTrigger("die");
 
             // 死亡SEを再生（オブジェクトが消えても音が鳴り続ける方法）
             AudioSource.PlayClipAtPoint(seExplosion, transform.position);
@@ -227,7 +229,8 @@ public class EnemyController : MonoBehaviour
             // 死亡エフェクトを生成
             if (flamePrefab != null)
             {
-                Instantiate(flamePrefab, transform.position, Quaternion.identity);
+                //Instantiate(flamePrefab, transform.position, Quaternion.identity);
+                Instantiate(flamePrefab, transform.position, flamePrefab.transform.rotation);
             }
 
             // アニメーションが終わるまで待つ（時間はアニメの長さに合わせて調整）

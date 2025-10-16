@@ -320,6 +320,7 @@ MonoBehaviour:
   gate: {fileID: 7844889968726266431}
   bulletSpeed: 100
   fireInterval: 2
+  animator: {fileID: 7963654138674662152}
   seShot: {fileID: 8300000, guid: e9d67448e6d9ef749a7b4bdf5711c64b, type: 3}
   seDamage: {fileID: 8300000, guid: 0d30ac30267e842419537598daf5f23d, type: 3}
   seExplosion: {fileID: 8300000, guid: 0bdbb689c62e18943b959eb8102051b0, type: 3}
@@ -707,5 +708,10 @@ PrefabInstance:
 --- !u!4 &7963654138667148458 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7072444061591351794, guid: 910177ec26b76c14996c2d53627a6def, type: 3}
+  m_PrefabInstance: {fileID: 910513661580809560}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &7963654138674662152 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 7072444061582351952, guid: 910177ec26b76c14996c2d53627a6def, type: 3}
   m_PrefabInstance: {fileID: 910513661580809560}
   m_PrefabAsset: {fileID: 0}
