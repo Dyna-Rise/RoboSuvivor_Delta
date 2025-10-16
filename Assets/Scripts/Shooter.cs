@@ -5,7 +5,6 @@ public class Shooter : MonoBehaviour
 {
     public GameObject gate; // Gateオブジェクト
     public GameObject bulletPrefab; // バレットのプレハブ
-    public int bullet = 10;        //残弾数
     public float shotPower = 100f; // ショットパワー
     public float upSpeed = 0.2f;   // 上方向への補正値（高さ）
     public float shotRecoverTime = 3.0f; // 弾の回復時間
@@ -34,10 +33,10 @@ public class Shooter : MonoBehaviour
     void Shot()
     {
         if (isAttack) return; // 連射防止
-        if (bullet <= 0) return; // 残弾なし
+        if (GameManager.shotRemainingNum <= 0) return; // 残弾なし
 
         isAttack = true;
-        bullet--;
+        GameManager.shotRemainingNum--;
 
         // ショットSE
         audioSource.PlayOneShot(se_Shot);
@@ -69,7 +68,7 @@ public class Shooter : MonoBehaviour
     IEnumerator RecoverShot()
     {
         yield return new WaitForSeconds(shotRecoverTime);
-        bullet++;
+        GameManager.shotRemainingNum++;
     }
 
     void ShootEnabled()

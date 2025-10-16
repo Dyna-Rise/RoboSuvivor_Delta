@@ -38,11 +38,12 @@ public class SwordAttack : MonoBehaviour
         swordCollider.SetActive(true);
 
         // 斬撃エフェクトをプレイヤーの前方に生成
-        Quaternion slashRotation = transform.rotation * Quaternion.Euler(0, 180, 0);
+        Quaternion slashRotation = transform.rotation * Quaternion.Euler(0, 200, 5);
+
         // ← 右から左に薙ぎ払う向き
         GameObject slash = Instantiate(
             swordPrefab,
-            transform.position + transform.forward * 1.0f,
+            transform.position + Vector3.up * 1.2f,
             slashRotation
         );
 
