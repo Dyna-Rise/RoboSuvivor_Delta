@@ -35,75 +35,79 @@ public class PlayerController : MonoBehaviour
         //ゲームステータスがplaying or gameclear であれば動かす
         if (GameManager.gameState == GameState.playing || GameManager.gameState == GameState.gameclear)
         {
-            //地面にいる状態であれば動かす
-            if (controller.isGrounded)
+            if (!isDead)
             {
-                //上下キーが押されたら動かす
-                if (Input.GetAxis("Vertical") != 0.0f)
-                {
 
-                    if (Input.GetAxis("Vertical") > 0.0f)
+                //地面にいる状態であれば動かす
+                if (controller.isGrounded)
+                {
+                    //上下キーが押されたら動かす
+                    if (Input.GetAxis("Vertical") != 0.0f)
                     {
-                        animator.SetInteger("direction", 0);
+
+                        if (Input.GetAxis("Vertical") > 0.0f)
+                        {
+                            animator.SetInteger("direction", 0);
+                        }
+                        else
+                        {
+                            animator.SetInteger("direction", 2);
+                        }
+                        animator.SetBool("walk", true); //走るフラグをOn
+                        Debug.Log("上下キー　");
+                        moveDirection.z = Input.GetAxis("Vertical") * moveSpeed;
                     }
                     else
                     {
-                        animator.SetInteger("direction", 2);
+                        moveDirection.z = 0.0f; //キーが押されていないなら動かさない
+                        animator.SetBool("walk", false); //走るフラグをOFF
                     }
-                    animator.SetBool("walk", true); //走るフラグをOn
-                    Debug.Log("上下キー　");
-                    moveDirection.z = Input.GetAxis("Vertical") * moveSpeed;
-                }
-                else
-                {
-                    moveDirection.z = 0.0f;　//キーが押されていないなら動かさない
-                    animator.SetBool("walk", false); //走るフラグをOFF
-                }
 
-                //左右キーが押されたら動かす
-                if (Input.GetAxis("Horizontal") != 0.0f)
-                {
-                    if (Input.GetAxis("Horizontal") > 0.0f)
+                    //左右キーが押されたら動かす
+                    if (Input.GetAxis("Horizontal") != 0.0f)
                     {
-                        animator.SetInteger("direction", 3);
+                        if (Input.GetAxis("Horizontal") > 0.0f)
+                        {
+                            animator.SetInteger("direction", 3);
+                        }
+                        else
+                        {
+                            animator.SetInteger("direction", 1);
+                        }
+                        animator.SetBool("walk", true); //走るフラグをOn
+                        moveDirection.x = Input.GetAxis("Horizontal") * moveSpeed;
                     }
                     else
                     {
-                        animator.SetInteger("direction", 1);
+                        moveDirection.x = 0.0f; //キーが押されていないなら動かさない
+                                                //animator.SetBool("walk", false); //走るフラグをOFF
                     }
-                    animator.SetBool("walk", true); //走るフラグをOn
-                    moveDirection.x = Input.GetAxis("Horizontal") * moveSpeed;
+
+
+                    //マウスクリックでShootアニメ起動
+                    if (Input.GetMouseButton(0))
+                    {
+                        animator.SetTrigger("shot");  //ショットのアニメクリップの発動
+                    }
+
                 }
-                else
+
+                if (Input.GetButtonDown("Jump"))
                 {
-                    moveDirection.x = 0.0f;　//キーが押されていないなら動かさない
-                    //animator.SetBool("walk", false); //走るフラグをOFF
+                    //ジャンプボタンが押されたら
+                    moveDirection.y = jumpForce;
+                    // アニメ
+                    animator.SetTrigger("jump");  //ジャンプのアニメクリップの発動
                 }
 
-
-                //マウスクリックでShootアニメ起動
-                if (Input.GetMouseButton(0))
-                {
-                    animator.SetTrigger("shot");  //ショットのアニメクリップの発動
-                }
-
+                //常に重力をかける
+                moveDirection.y -= gravity * Time.deltaTime;
+                //体の向きに合わせて前後左右をGlobal座標系に変換
+                Vector3 globalDirection = transform.TransformDirection(moveDirection);
+                controller.Move(globalDirection * Time.deltaTime);
+                //接地したらyは0に
+                if (controller.isGrounded) moveDirection.y = 0.0f;
             }
-
-            if (Input.GetButtonDown("Jump"))
-            {
-                //ジャンプボタンが押されたら
-                moveDirection.y = jumpForce;
-                // アニメ
-                animator.SetTrigger("jump");  //ジャンプのアニメクリップの発動
-            }
-
-            //常に重力をかける
-            moveDirection.y -= gravity * Time.deltaTime;
-            //体の向きに合わせて前後左右をGlobal座標系に変換
-            Vector3 globalDirection = transform.TransformDirection(moveDirection);
-            controller.Move(globalDirection * Time.deltaTime);
-            //接地したらyは0に
-            if (controller.isGrounded) moveDirection.y = 0.0f;
 
         }
 
@@ -126,7 +130,7 @@ public class PlayerController : MonoBehaviour
             //Debug.Log("死亡タイマー　　" +  deadTime);
             if (deadTime < 0)
             {
-
+                animator.SetTrigger("die");  //死亡のアニメクリップの発動
                 GameManager.gameState = GameState.gameover;
                 Destroy(gameObject, 3.0f); //自分自身の消失
             }
@@ -154,13 +158,13 @@ public class PlayerController : MonoBehaviour
 
             if (GameManager.playerHP <= 0)
             {
+                animator.SetTrigger("die");  //死亡のアニメクリップの発動
                 //playerHPが0になったら gameover
                 Debug.Log("死んだ");
                 moveDirection.x = 0.0f;
                 moveDirection.z = 0.0f;
                 isDead = true;
-                animator.SetTrigger("die");  //死亡のアニメクリップの発動
-
+                
             }
 
             isDamege = true;
