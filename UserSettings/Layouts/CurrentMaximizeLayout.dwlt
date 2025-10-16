@@ -919,7 +919,7 @@ MonoBehaviour:
   - {fileID: 13}
   m_Position:
     serializedVersion: 2
-    x: 693
+    x: 692
     y: 0
     width: 608
     height: 941
@@ -1462,7 +1462,7 @@ MonoBehaviour:
   m_Children: []
   m_Position:
     serializedVersion: 2
-    x: 1301
+    x: 1299
     y: 0
     width: 619
     height: 941
