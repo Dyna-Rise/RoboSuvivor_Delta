@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 4565164672377304922}
   m_Layer: 6
   m_Name: SwordCollider
-  m_TagString: PlayerBullet
+  m_TagString: PlayerSword
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -368,7 +368,7 @@ MonoBehaviour:
   bulletPrefab: {fileID: 6661650154168110023, guid: 474f41b5d7352454da578f36c4c2835a, type: 3}
   shotPower: 100
   upSpeed: 0.2
-  shotRecoverTime: 3
+  shotRecoverTime: 6
   se_Shot: {fileID: 8300000, guid: e9d67448e6d9ef749a7b4bdf5711c64b, type: 3}
 --- !u!114 &6166302034573783699
 MonoBehaviour:
