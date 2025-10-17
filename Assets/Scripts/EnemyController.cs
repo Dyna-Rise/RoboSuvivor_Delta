@@ -121,9 +121,10 @@ public class EnemyController : MonoBehaviour
     IEnumerator AttackCoroutine()
     {
         isAttack = true;  // 攻撃中フラグON
-        lockOn = false;   // 攻撃モーション中は向きを固定するためlockOnをOFF
-        timer = 0f;       // タイマーリセット
+        lockOn = false;   // 攻撃モーション中は向きを固定するためlockOnをOF
 
+        timer = 0f;       // タイマーリセット
+        yield return new WaitForSeconds(1.0f);
         // 弾を生成し、前方に飛ばす
         if (bulletPrefab != null && gate != null)
         {
@@ -139,6 +140,8 @@ public class EnemyController : MonoBehaviour
 
             // 3. 元の向きに補正をかけて、最終的な向きを計算
             Quaternion finalRotation = initialRotation * rotationCorrection;
+
+            
 
             // 4. 計算した最終的な向きで弾を生成する
             GameObject bullet = Instantiate(bulletPrefab, gate.transform.position, finalRotation);
