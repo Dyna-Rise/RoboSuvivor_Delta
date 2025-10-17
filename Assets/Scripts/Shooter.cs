@@ -7,7 +7,7 @@ public class Shooter : MonoBehaviour
     public GameObject bulletPrefab; // バレットのプレハブ
     public float shotPower = 100f; // ショットパワー
     public float upSpeed = 0.2f;   // 上方向への補正値（高さ）
-    public float shotRecoverTime = 3.0f; // 弾の回復時間
+    public float shotRecoverTime = 10f; // 弾の回復時間
     bool isAttack; // 攻撃中フラグ
 
     public AudioClip se_Shot; // ショットSE
