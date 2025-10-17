@@ -69,7 +69,7 @@ public class PlayerController : MonoBehaviour
                     animator.SetInteger("direction", 2);
                 }
                 animator.SetBool("walk", true); //走るフラグをOn
-                Debug.Log("上下キー　");
+                //Debug.Log("上下キー　");
                 moveDirection.z = Input.GetAxis("Vertical") * moveSpeed;
             }
 
