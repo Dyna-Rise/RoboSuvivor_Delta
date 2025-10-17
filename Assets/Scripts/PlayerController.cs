@@ -8,7 +8,7 @@ public class PlayerController : MonoBehaviour
     public Animator animator;
 
     public float moveSpeed = 5.0f; //移動スピード
-    public float jumpForce = 8.0f; //ジャンプパワー
+    public float jumpForce = 10.0f; //ジャンプパワー
     public float gravity = 20.0f; //重力
     public float damageTimeIni = 2.0f; //ダメージ時間
     float damageTime = 2.0f;
@@ -72,11 +72,6 @@ public class PlayerController : MonoBehaviour
                 Debug.Log("上下キー　");
                 moveDirection.z = Input.GetAxis("Vertical") * moveSpeed;
             }
-            else
-            {
-                moveDirection.z = 0.0f; //キーが押されていないなら動かさない
-                animator.SetBool("walk", false); //走るフラグをOFF
-            }
 
             //左右キーが押されたら動かす
             if (Input.GetAxis("Horizontal") != 0.0f)
@@ -92,19 +87,20 @@ public class PlayerController : MonoBehaviour
                 animator.SetBool("walk", true); //走るフラグをOn
                 moveDirection.x = Input.GetAxis("Horizontal") * moveSpeed;
             }
-            else
+            
+            if ((Input.GetAxis("Vertical")  == 0.0f) && (Input.GetAxis("Horizontal") == 0.0f))
             {
                 moveDirection.x = 0.0f; //キーが押されていないなら動かさない
+                moveDirection.z = 0.0f; //キーが押されていないなら動かさない
                 animator.SetBool("walk", false); //走るフラグをOFF
+
+                //マウスクリックでShootアニメ起動
+                if (Input.GetMouseButton(0))
+                {
+                    animator.SetTrigger("shot");  //ショットのアニメクリップの発動
+                }
             }
-
-
-            //マウスクリックでShootアニメ起動
-            if (Input.GetMouseButton(0))
-            {
-                animator.SetTrigger("shot");  //ショットのアニメクリップの発動
-            }
-
+            
 
             if (Input.GetButtonDown("Jump"))
             {
@@ -168,7 +164,7 @@ public class PlayerController : MonoBehaviour
                 audioSource.PlayOneShot(se_Explosion);
 
                 //playerHPが0になったら gameover
-                Debug.Log("死んだ");
+                //Debug.Log("死んだ");
                 moveDirection.x = 0.0f;
                 moveDirection.z = 0.0f;
                 //isDead = true;
@@ -187,7 +183,7 @@ public class PlayerController : MonoBehaviour
     IEnumerator Dead()
     {
         isDead = true;
-        yield return new WaitForSeconds(3); //３秒待つ
+        yield return new WaitForSeconds(5); //5秒待つ
         Destroy(gameObject);
         GameManager.gameState = GameState.gameover;
     }
