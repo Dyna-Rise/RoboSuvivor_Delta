@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine;
 
+//コードレビュー
 public class PlayerController : MonoBehaviour
 {
     CharacterController controller;
