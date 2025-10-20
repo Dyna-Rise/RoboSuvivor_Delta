@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
+//コードレビュー
 public class SwordAttack : MonoBehaviour
 {
     public GameObject swordCollider; // 当たり判定
