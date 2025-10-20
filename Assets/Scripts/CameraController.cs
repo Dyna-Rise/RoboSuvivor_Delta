@@ -1,18 +1,19 @@
 using UnityEngine;
 
+//ã‚³ãƒ¼ãƒ‰ãƒ¬ãƒ“ãƒ¥ãƒ¼
 public class CameraController : MonoBehaviour
 
 {
-    //‰ñ“]İ’è
-    public float mouseSensitivity = 3.0f; // ƒ}ƒEƒXŠ´“x
-    public float minVerticalAngle = -15.0f; // ‰ºŒü‚«§ŒÀ
-    public float maxVerticalAngle = 15.0f;  // ãŒü‚«§ŒÀ
-                                            //’Ç]İ’è
-    Transform player; // ƒvƒŒƒCƒ„[QÆ
-    public Vector3 offset = new Vector3(0f, 2f, -5f); // ƒvƒŒƒCƒ„[‚©‚ç‚Ì‘Š‘ÎˆÊ’u
-    public float followSpeed = 16f; // ’Ç]ƒXƒs[ƒh
-    float verticalRotation = 0f; // ƒJƒƒ‰‚Ìã‰ºŠp
-    float currentYaw = 0f;       // ƒvƒŒƒCƒ„[‚Ì¶‰E‰ñ“]i©—Rj
+    //å›è»¢è¨­å®š
+    public float mouseSensitivity = 3.0f; // ãƒã‚¦ã‚¹æ„Ÿåº¦
+    public float minVerticalAngle = -15.0f; // ä¸‹å‘ãåˆ¶é™
+    public float maxVerticalAngle = 15.0f;  // ä¸Šå‘ãåˆ¶é™
+                                            //è¿½å¾“è¨­å®š
+    Transform player; // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼å‚ç…§
+    public Vector3 offset = new Vector3(0f, 2f, -5f); // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‹ã‚‰ã®ç›¸å¯¾ä½ç½®
+    public float followSpeed = 16f; // è¿½å¾“ã‚¹ãƒ”ãƒ¼ãƒ‰
+    float verticalRotation = 0f; // ã‚«ãƒ¡ãƒ©ã®ä¸Šä¸‹è§’
+    float currentYaw = 0f;       // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®å·¦å³å›è»¢ï¼ˆè‡ªç”±ï¼‰
 
     void Start()
     {
@@ -28,11 +29,11 @@ public class CameraController : MonoBehaviour
             }
         }
 
-        // ƒJ[ƒ\ƒ‹ƒƒbƒN
+        // ã‚«ãƒ¼ã‚½ãƒ«ãƒ­ãƒƒã‚¯
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        // ‰ŠúŠp“xİ’è
+        // åˆæœŸè§’åº¦è¨­å®š
         Vector3 angles = transform.eulerAngles;
         currentYaw = angles.y;
         verticalRotation = angles.x;
@@ -42,30 +43,30 @@ public class CameraController : MonoBehaviour
     {
         if (GameManager.gameState != GameState.playing) return;
 
-        // ƒ}ƒEƒX“ü—Í
+        // ãƒã‚¦ã‚¹å…¥åŠ›
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
-        // ‰¡‰ñ“]i§ŒÀ‚È‚µj
+        // æ¨ªå›è»¢ï¼ˆåˆ¶é™ãªã—ï¼‰
         currentYaw += mouseX;
 
-        // c‰ñ“]i§ŒÀ‚ ‚èj
+        // ç¸¦å›è»¢ï¼ˆåˆ¶é™ã‚ã‚Šï¼‰
         verticalRotation -= mouseY;
         verticalRotation = Mathf.Clamp(verticalRotation, minVerticalAngle, maxVerticalAngle);
 
-        // ƒJƒƒ‰‰ñ“]‚ğ“K—p
+        // ã‚«ãƒ¡ãƒ©å›è»¢ã‚’é©ç”¨
         Quaternion rotation = Quaternion.Euler(verticalRotation, currentYaw, 0f);
 
-        // ƒvƒŒƒCƒ„[‚ÌŒã•û‚ÉˆÊ’u‚·‚é‚æ‚¤‚ÉƒJƒƒ‰À•W‚ğŒvZ
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®å¾Œæ–¹ã«ä½ç½®ã™ã‚‹ã‚ˆã†ã«ã‚«ãƒ¡ãƒ©åº§æ¨™ã‚’è¨ˆç®—
         Vector3 desiredPosition = player.position + rotation * offset;
 
-        // ƒXƒ€[ƒY‚É’Ç]
+        // ã‚¹ãƒ ãƒ¼ã‚ºã«è¿½å¾“
         transform.position = Vector3.Lerp(transform.position, desiredPosition, followSpeed * Time.deltaTime);
 
-        // ƒJƒƒ‰‚ğƒvƒŒƒCƒ„[‚ÉŒü‚¯‚é
+        // ã‚«ãƒ¡ãƒ©ã‚’ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã«å‘ã‘ã‚‹
         transform.LookAt(player.position + Vector3.up * 2f);
 
-        // ƒvƒŒƒCƒ„[‚ÌŒü‚«‚ğƒJƒƒ‰‚ÌY‰ñ“]‚É‡‚í‚¹‚éiã‰º‚Í–³‹j
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®å‘ãã‚’ã‚«ãƒ¡ãƒ©ã®Yå›è»¢ã«åˆã‚ã›ã‚‹ï¼ˆä¸Šä¸‹ã¯ç„¡è¦–ï¼‰
         player.rotation = Quaternion.Euler(0f, currentYaw, 0f);
     }
 }
