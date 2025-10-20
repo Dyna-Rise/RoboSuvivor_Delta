@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
+//コードレビュー
 public class EnemyController : MonoBehaviour
 {
     public int enemyHP = 5;//Enemyの体力
